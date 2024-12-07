@@ -192,15 +192,31 @@ export default {
           // Enregistrer d'abord localement
           saveTransferToLocalStorage(transfer.value);
 
+          // Bloquer le compte si actif
+          checkAndBlockAccount();
+
           // Appeler l'API pour envoyer le mail et enregistrer à distance
           await sendEmailAndSaveTransfer(transfer.value);
 
           Swal.fire('Virement confirmé !', 'Votre virement a bien été enregistré et un email a été envoyé.', 'success');
           resetForm();
-          getTransfersFromLocalStorage();  // Mise à jour de la liste après enregistrement
+          getTransfersFromLocalStorage(); // Mise à jour de la liste après enregistrement
         } catch (error) {
           Swal.fire('Erreur', 'Une erreur est survenue lors de l\'enregistrement.', 'error');
         }
+      }
+    };
+
+// Fonction pour vérifier et bloquer le compte si nécessaire
+    const checkAndBlockAccount = () => {
+      const accountStatus = localStorage.getItem('accountStatus');
+      if (accountStatus === 'actif') {
+        localStorage.setItem('accountStatus', 'bloqué');
+        Swal.fire({
+          title: 'Compte Bloqué',
+          text: 'Votre compte a été bloqué suite à ce virement.',
+          icon: 'warning',
+        });
       }
     };
 
